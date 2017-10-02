@@ -1,0 +1,17 @@
+{
+    "name": "ns3777k/monolog-syslog3164",
+    "authors": [
+        {
+            "name": "Nikita Safonov",
+            "email": "ns3777k@gmail.com"
+        }
+    ],
+    "require": {
+        "monolog/monolog": "^1.23"
+    },
+	"autoload": {
+		"psr-4": {
+			"Dalee\\Monolog\\Handler\\": ["src/"]
+		}
+	}
+}
