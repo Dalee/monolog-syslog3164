@@ -3,6 +3,7 @@
 namespace Dalee\Monolog\Handler;
 
 use DateTime;
+use InvalidArgumentException;
 use Monolog\Logger;
 use Monolog\Handler\AbstractProcessingHandler;
 use Monolog\Handler\SyslogUdp\UdpSocket;
@@ -14,6 +15,11 @@ use Monolog\Formatter\LineFormatter;
  * @package Dalee\Monolog\Handler
  */
 class Syslog3164Handler extends AbstractProcessingHandler {
+
+	/**
+	 * @var int
+	 */
+	const MAX_PACKET_LENGTH = 1024;
 
 	/**
 	 * @var int
@@ -43,12 +49,7 @@ class Syslog3164Handler extends AbstractProcessingHandler {
 	/**
 	 * @var int
 	 */
-	const FACILITY_SECURITY = 4;
-
-	/**
-	 * @var int
-	 */
-	const FACILITY_SYSLOG = 5;
+	const FACILITY_SYSLOGD = 5;
 
 	/**
 	 * @var int
@@ -69,11 +70,6 @@ class Syslog3164Handler extends AbstractProcessingHandler {
 	 * @var int
 	 */
 	const FACILITY_CLOCK0 = 9;
-
-	/**
-	 * @var int
-	 */
-	const FACILITY_CLOCK = 9;
 
 	/**
 	 * @var int
@@ -177,22 +173,38 @@ class Syslog3164Handler extends AbstractProcessingHandler {
 	/**
 	 * @var string
 	 */
-	protected $application = 'php';
+	protected $tag = 'php';
+
+	/**
+	 * @var int
+	 */
+	protected $pid = 0;
+
+	/**
+	 * According to RFC, the total length of the packet must be 1024 or less.
+	 * If $strictSize is false the message is sent as is otherwise it's
+	 * truncated to 1024.
+	 *
+	 * N.B. if header is greater than 1024 bytes the message is
+	 * dropped with E_NOTICE triggered.
+	 *
+	 * @var bool
+	 */
+	protected $strictSize = false;
 
 	/**
 	 * Syslog3164Handler constructor.
 	 *
 	 * @param string $host
 	 * @param int $port
-	 * @param int $facility
 	 * @param int $level
 	 * @param bool $bubble
 	 */
-	public function __construct($host = '127.0.0.1', $port = 514, $facility = self::FACILITY_USER, $level = Logger::DEBUG, $bubble = true) {
+	public function __construct($host = '127.0.0.1', $port = 514, $level = Logger::DEBUG, $bubble = true) {
 		parent::__construct($level, $bubble);
 
+		$this->facility = static::FACILITY_USER;
 		$this->socket = new UdpSocket($host, $port);
-		$this->facility = $facility;
 
 		if ($hostname = gethostname()) {
 			$this->hostname = $hostname;
@@ -200,14 +212,152 @@ class Syslog3164Handler extends AbstractProcessingHandler {
 	}
 
 	/**
+	 * @return int
+	 */
+	public function getPid() {
+		return $this->pid;
+	}
+
+	/**
+	 * @param int $pid
+	 * @return $this
+	 */
+	public function setPid($pid) {
+		$this->pid = (int)$pid;
+
+		return $this;
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getFacility() {
+		return $this->facility;
+	}
+
+	/**
+	 * @param int $facility
+	 * @throws InvalidArgumentException on invalid facility
+	 * @return $this
+	 */
+	public function setFacility($facility) {
+		if ($facility < static::FACILITY_KERNEL || $facility > static::FACILITY_LOCAL7) {
+			throw new InvalidArgumentException("Facility {$facility} is invalid");
+		}
+
+		$this->facility = (int)$facility;
+
+		return $this;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getHostname() {
+		return $this->hostname;
+	}
+
+	/**
+	 * @param string $hostname
+	 * @throws InvalidArgumentException on invalid hostname
+	 * @return $this
+	 */
+	public function setHostname($hostname) {
+		$pattern = '/(?=^.{1,254}$)(^(?:(?!\d|-)[a-z0-9\-]{1,63}(?<!-)\.)+(?:[a-z]{2,})$)/i';
+		$isValidHostname = !empty($hostname);
+		$isValidHostname = $isValidHostname && preg_match($pattern, $hostname);
+		$isValidHostname = $isValidHostname || filter_var($hostname, FILTER_VALIDATE_IP);
+
+		if (!$isValidHostname) {
+			throw new InvalidArgumentException("Invalid hostname: {$hostname}");
+		}
+
+		$this->hostname = $hostname;
+
+		return $this;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getTag() {
+		return $this->tag;
+	}
+
+	/**
+	 * @param string $tag
+	 * @throws InvalidArgumentException on invalid tag
+	 * @return $this
+	 */
+	public function setTag($tag) {
+		if (preg_match('/[^a-z0-9]/i', $tag)) {
+			throw new InvalidArgumentException("Invalid tag: {$tag}");
+		}
+
+		$this->tag = $tag;
+
+		return $this;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isStrictSize() {
+		return $this->strictSize;
+	}
+
+	/**
+	 * @param bool $strictSize
+	 * @return $this
+	 */
+	public function setStrictSize($strictSize) {
+		$this->strictSize = $strictSize;
+
+		return $this;
+	}
+
+	/**
+	 * @return UdpSocket
+	 */
+	public function getSocket() {
+		return $this->socket;
+	}
+
+	/**
+	 * @param UdpSocket $socket
+	 * @return $this
+	 */
+	public function setSocket(UdpSocket $socket) {
+		$this->socket = $socket;
+
+		return $this;
+	}
+
+	/**
 	 * @inheritdoc
 	 */
 	protected function write(array $record) {
-		$formatted = $record['formatted'];
+		$message = $record['formatted'];
 		$severity = $this->logLevels[$record['level']];
-
 		$header = $this->makeHeader($severity);
-		$this->socket->write($formatted, $header);
+
+		if ($this->strictSize) {
+			$headerLength = strlen($header);
+			$messageLength = strlen($message);
+
+			if ($headerLength >= static::MAX_PACKET_LENGTH) {
+				trigger_error('Packet length is over maximum size', E_USER_NOTICE);
+				return;
+			}
+
+			$maxMessageLength = static::MAX_PACKET_LENGTH - $headerLength;
+
+			if ($messageLength > $maxMessageLength) {
+				$message = substr($message, 0, $maxMessageLength);
+			}
+		}
+
+		$this->socket->write($message, $header);
 	}
 
 	/**
@@ -221,7 +371,11 @@ class Syslog3164Handler extends AbstractProcessingHandler {
 		$date = $now->format('M j H:m:s.u');
 		$date = substr($date, 0, strlen($date) - 3);
 
-		return sprintf('<%d>%s %s %s', $priority, $date, $this->hostname, $this->application);
+		return sprintf(
+			'<%d>%s %s %s%s',
+			$priority, $date, $this->hostname, $this->tag,
+			!empty($this->pid) ? "[{$this->pid}]" : ''
+		);
 	}
 
 	/**
