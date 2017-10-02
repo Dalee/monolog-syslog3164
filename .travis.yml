@@ -1,0 +1,13 @@
+language: php
+php: "5.6"
+
+cache:
+  directories:
+    - vendor
+
+before_script:
+  - composer install --no-suggest
+
+script:
+  - make test
+  - bash <(curl -s https://codecov.io/bash)
