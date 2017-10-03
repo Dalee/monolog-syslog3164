@@ -5,6 +5,10 @@
 		 colors="true"
 		 bootstrap="tests/bootstrap.php">
 
+	<logging>
+		<log type="coverage-clover" target="clover.xml"/>
+	</logging>
+
 	<testsuites>
 		<testsuite name="Unit">
 			<directory suffix=".php">tests/Unit</directory>
