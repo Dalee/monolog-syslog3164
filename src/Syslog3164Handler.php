@@ -385,10 +385,12 @@ class Syslog3164Handler extends AbstractProcessingHandler {
 	 * @return string
 	 */
 	protected function getDateTime() {
-		$now = DateTime::createFromFormat('U.u', microtime(true));
-		$date = $now->format('M j H:m:s.u');
-
-		return substr($date, 0, strlen($date) - 3);
+		return sprintf(
+			'%s %2d %s',
+			date('M'),
+			date('j'),
+			date('H:m:s')
+		);
 	}
 
 	/**
@@ -401,6 +403,7 @@ class Syslog3164Handler extends AbstractProcessingHandler {
 	/**
 	 * Gets syslog formatter without extra.
 	 *
+	 * @codeCoverageIgnore
 	 * @return \Monolog\Formatter\FormatterInterface
 	 */
 	protected function getDefaultFormatter() {
