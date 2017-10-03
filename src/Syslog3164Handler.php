@@ -372,16 +372,23 @@ class Syslog3164Handler extends AbstractProcessingHandler {
 	 */
 	protected function makeHeader($severity) {
 		$priority = $this->facility * 8 + $severity;
-
-		$now = DateTime::createFromFormat('U.u', microtime(true));
-		$date = $now->format('M j H:m:s.u');
-		$date = substr($date, 0, strlen($date) - 3);
+		$date = $this->getDateTime();
 
 		return sprintf(
 			'<%d>%s %s %s%s',
 			$priority, $date, $this->hostname, $this->tag,
 			!empty($this->pid) ? "[{$this->pid}]" : ''
 		);
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function getDateTime() {
+		$now = DateTime::createFromFormat('U.u', microtime(true));
+		$date = $now->format('M j H:m:s.u');
+
+		return substr($date, 0, strlen($date) - 3);
 	}
 
 	/**

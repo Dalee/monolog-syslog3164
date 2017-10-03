@@ -16,12 +16,26 @@ class Syslog3164HandlerTest extends TestCase {
 
 	public function setUp() {
 		$socket = $this->getMockBuilder(UdpSocket::class)
-			->setConstructorArgs(['127.0.0.1', 514, Logger::DEBUG, true])
-			->setMethods(['close'])
+			->setConstructorArgs(['127.0.0.1', 514])
+			->setMethods(['close', 'getDateTime', 'write'])
 			->getMock();
 
 		$this->handler = new Syslog3164Handler();
 		$this->handler->setSocket($socket);
+	}
+
+	/**
+	 * @param $message
+	 * @return array
+	 */
+	protected function getRecordWithMessage($message) {
+		return [
+			'message' => $message,
+			'level' => Logger::WARNING,
+			'context' => null,
+			'extra' => [],
+			'channel' => 'test'
+		];
 	}
 
 	/**
