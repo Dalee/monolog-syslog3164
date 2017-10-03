@@ -1,0 +1,20 @@
+{
+    "name": "ns3777k/monolog-syslog3164",
+    "authors": [
+        {
+            "name": "Nikita Safonov",
+            "email": "ns3777k@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Dalee\\Monolog\\Handler\\": ["src/"]
+        }
+    },
+    "require": {
+        "monolog/monolog": "^1.23"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^5.7"
+    }
+}
