@@ -212,6 +212,7 @@ class Syslog3164Handler extends AbstractProcessingHandler {
 	}
 
 	/**
+	 * @codeCoverageIgnore
 	 * @return int
 	 */
 	public function getPid() {
@@ -219,6 +220,7 @@ class Syslog3164Handler extends AbstractProcessingHandler {
 	}
 
 	/**
+	 * @codeCoverageIgnore
 	 * @param int $pid
 	 * @return $this
 	 */
@@ -300,6 +302,7 @@ class Syslog3164Handler extends AbstractProcessingHandler {
 	}
 
 	/**
+	 * @codeCoverageIgnore
 	 * @return bool
 	 */
 	public function isStrictSize() {
@@ -307,6 +310,7 @@ class Syslog3164Handler extends AbstractProcessingHandler {
 	}
 
 	/**
+	 * @codeCoverageIgnore
 	 * @param bool $strictSize
 	 * @return $this
 	 */
@@ -317,6 +321,7 @@ class Syslog3164Handler extends AbstractProcessingHandler {
 	}
 
 	/**
+	 * @codeCoverageIgnore
 	 * @return UdpSocket
 	 */
 	public function getSocket() {
@@ -324,6 +329,7 @@ class Syslog3164Handler extends AbstractProcessingHandler {
 	}
 
 	/**
+	 * @codeCoverageIgnore
 	 * @param UdpSocket $socket
 	 * @return $this
 	 */
