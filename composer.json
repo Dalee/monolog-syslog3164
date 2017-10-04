@@ -1,5 +1,9 @@
 {
     "name": "ns3777k/monolog-syslog3164",
+    "description": "Monolog handler for syslog3164",
+    "keywords": ["monolog", "logging"],
+    "type": "library",
+    "license": "MIT",
     "authors": [
         {
             "name": "Nikita Safonov",
@@ -7,11 +11,10 @@
         }
     ],
     "autoload": {
-        "psr-4": {
-            "Dalee\\Monolog\\Handler\\": ["src/"]
-        }
+        "psr-4": {"Dalee\\Monolog\\Handler\\": ["src/"]}
     },
     "require": {
+        "php": ">=5.6.0",
         "monolog/monolog": "^1.23"
     },
     "require-dev": {
