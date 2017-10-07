@@ -5,7 +5,7 @@
 ## Getting started
 
 ```bash
-$ composer install dalee/monolog-syslog3164
+$ composer require dalee/monolog-syslog3164
 ```
 
 ## Example
