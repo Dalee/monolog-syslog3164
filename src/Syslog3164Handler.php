@@ -2,7 +2,6 @@
 
 namespace Dalee\Monolog\Handler;
 
-use DateTime;
 use InvalidArgumentException;
 use Monolog\Logger;
 use Monolog\Handler\AbstractProcessingHandler;
