@@ -4,8 +4,6 @@
 
 ## Getting started
 
-WIP. It's not published to packagist yet!
-
 ```bash
 $ composer install dalee/monolog-syslog3164
 ```
