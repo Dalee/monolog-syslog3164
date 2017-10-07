@@ -1,13 +1,13 @@
 {
-    "name": "ns3777k/monolog-syslog3164",
+    "name": "dalee/monolog-syslog3164",
     "description": "Monolog handler for syslog3164",
     "keywords": ["monolog", "logging"],
     "type": "library",
     "license": "MIT",
     "authors": [
         {
-            "name": "Nikita Safonov",
-            "email": "ns3777k@gmail.com"
+            "name": "Dalee IA",
+            "email": "dev@dalee.ru"
         }
     ],
     "autoload": {
