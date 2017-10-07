@@ -1,13 +1,11 @@
 # Monolog syslog3164 handler
-[![Build Status](https://travis-ci.org/ns3777k/monolog-syslog3164.svg?branch=dev)](https://travis-ci.org/ns3777k/monolog-syslog3164)
-[![codecov](https://codecov.io/gh/ns3777k/monolog-syslog3164/branch/master/graph/badge.svg)](https://codecov.io/gh/ns3777k/monolog-syslog3164)
+[![Build Status](https://travis-ci.org/Dalee/monolog-syslog3164.svg?branch=master)](https://travis-ci.org/Dalee/monolog-syslog3164)
+[![codecov](https://codecov.io/gh/Dalee/monolog-syslog3164/branch/master/graph/badge.svg)](https://codecov.io/gh/Dalee/monolog-syslog3164)
 
 ## Getting started
 
-WIP. It's not published to packagist yet!
-
 ```bash
-$ composer install ns3777k/monolog-syslog3164
+$ composer install dalee/monolog-syslog3164
 ```
 
 ## Example
